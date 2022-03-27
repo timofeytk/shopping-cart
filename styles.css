@@ -1,0 +1,17 @@
+.navbar-light .navbar-brand{
+    width: 100%;
+}
+.card-item{
+    margin-top: 2em;
+}
+.card-link{
+    display: inline-block;
+    text-align: right;
+    width: calc(100% - 40%);
+}
+.img-responsive{
+    width: 60%;
+    display: block;
+    margin: 1em auto;
+    text-align: center;
+}
