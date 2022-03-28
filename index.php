@@ -1,11 +1,11 @@
 <?php
 error_reporting(-1);
+session_start();
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/functions.php';
 $doors_list = get_doors();
 
 ?>
-
 <!doctype html>
 <html lang=ru>
 <head>
@@ -13,9 +13,9 @@ $doors_list = get_doors();
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="styles.css">
     <title>Shopping Cart</title>
 </head>
@@ -29,7 +29,7 @@ $doors_list = get_doors();
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     </ul>
-                    <a class="btn btn-success" href="#">
+                    <a class="btn btn-success cart-btn" href="#" data-toggle="modal" data-target="#cart">
                         <span>Корзина</span>
                         <span></span>
                     </a>
@@ -41,22 +41,23 @@ $doors_list = get_doors();
         <div class="container">
             <div class="row">
                 <?foreach($doors_list as $doors=>$door):?>
-                <div class="col-12 col-sm-6 col-md-4 card-item" id="door_<?=$door['id']?>" >
+                <div class="col-12 col-sm-6 col-md-4 card-item" id="<?=$door['id']?>" >
                     <div class="card">
                         <img src="images/<?=$door['image']?>" class="card-img-top" alt="<?=$door['name']?>">
                         <div class="card-body">
                             <h5 class="card-title"><?=$door['name']?></h5>
-                            <p class="card-text"><?=$door['description']?></p>
                         </div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><b>Цена:</b> <?=$door['price']?> руб.</li>
+                            <?if(!empty($door['old_price'])):?>
+                                <li class="list-group-item"><b>Старая цена:</b> <del><?=$door['price']?></del> руб.</li>
+                            <?endif;?>
                             <li class="list-group-item"><b>Тип двери:</b> <?=$door['type']?></li>
                             <li class="list-group-item"><b>Назначение:</b> <?=$door['appointment']?></li>
-                            <li class="list-group-item"><b>Отделка:</b> <?=$door['open_type']?></li>
                         </ul>
                         <div class="card-body">
-                            <a href="#" class="btn btn-primary">В корзину</a>
-                            <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#modal_<?=$door['id']?>">Подробнее</a>
+                            <a href="?cart=add&id=<?=$door['id']?>" class="btn btn-primary add-to-cart" data-toggle="modal" data-target="#<?=$door['id']?>" data-id="<?=$door['id']?>">В корзину</a>
+                            <a href="#" class="card-link" data-toggle="modal"  data-target="#modal_<?=$door['id']?>">Подробнее</a>
                         </div>
                     </div>
                 </div>
@@ -70,28 +71,105 @@ $doors_list = get_doors();
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><?=$door['name']?></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <img src="images/<?=$door['image']?>" alt="" class="img-responsive">
                     <p><?=$door['description']?></p>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><b>Цена:</b> <?=$door['price']?> руб.</li>
+                        <?if(!empty($door['old_price'])):?>
+                            <li class="list-group-item"><b>Старая цена:</b> <del><?=$door['price']?></del> руб.</li>
+                        <?endif;?>
                         <li class="list-group-item"><b>Тип двери:</b> <?=$door['type']?></li>
                         <li class="list-group-item"><b>Назначение:</b> <?=$door['appointment']?></li>
-                        <li class="list-group-item"><b>Отделка:</b> <?=$door['open_type']?></li>
-                        <li class="list-group-item"><b>Отделка:</b> <?=$door['construction']?></li>
-                        <li class="list-group-item"><b>Отделка:</b> <?=$door['weight']?></li>
-                        <li class="list-group-item"><b>Отделка:</b> <?=$door['size']?></li>
+                        <li class="list-group-item"><b>Тип покрытия:</b> <?=$door['open_type']?></li>
+                        <li class="list-group-item"><b>Конструкция:</b> <?=$door['construction']?></li>
+                        <li class="list-group-item"><b>Вес:</b> <?=$door['weight']?></li>
+                        <li class="list-group-item"><b>Размеры:</b> <?=$door['size']?></li>
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" class="btn btn-primary">В корзину</a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <a href="?cart=add&id=<?=$door['id']?>" class="btn btn-primary add-to-cart" data-toggle="modal" data-target="#<?=$door['id']?>" data-id="<?=$door['id']?>">В корзину</a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                 </div>
             </div>
         </div>
     </div>
     <?endforeach;?>
+
+    <div class="modal" tabindex="-1" id="cart">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Корзина</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="cart-modal-content">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function(){
+            function showCart(cart){
+                $('#cart .cart-modal-content').html(cart);
+                $('#cart').modal();
+            }
+
+            $('.add-to-cart').click(function (e){
+                e.preventDefault();
+                let id = $(this).data('id');
+
+                $.ajax({
+                    url: 'cart.php',
+                    type: 'GET',
+                    data: {cart: 'add', id: 'id'},
+                    dataType: 'json',
+                    success: function(resp){
+                        if(resp.code=='ok'){
+                            showCart(resp.answer);
+                        }else{
+                            alert(resp.answer);
+                        }
+                    },
+                    error: function(){
+                        alert('Ошибка добавления товара');
+                    }
+                });
+            });
+
+            $('.cart-btn').click(function (e){
+                e.preventDefault();
+
+                $.ajax({
+                    url: 'cart.php',
+                    type: 'GET',
+                    data: {cart: 'show'},
+                    success: function (resp){
+                        showCart(resp);
+                    },
+                    error: function (){
+                        alert('Ошибка работы корзины');
+                    }
+                });
+            });
+
+            $('#cart .cart-modal-content').on('click', '#clear', function(){
+                $.ajax({
+                    url: 'cart.php',
+                    type: 'GET',
+                    data: {cart: 'show'},
+                    success: function (resp){
+                        showCart(resp);
+                    },
+                    error: function (){
+                        alert('Ошибка работы корзины');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
